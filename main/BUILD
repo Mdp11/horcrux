@@ -19,7 +19,7 @@ configure_make(
         "//conditions:default": "config",
     }),
     configure_options = select({
-        ":windows_build" : ["mingw64", "no-shared"],
+        ":windows_build" : ["mingw64", "no-shared", "RC=/usr/bin/x86_64-w64-mingw32-windres", "-I/usr/x86_64-w64-mingw32/include"],
         "//conditions:default": ["no-shared"],
     }),
     lib_source = "@openssl//:all",
@@ -35,8 +35,8 @@ cc_binary(
     deps = [
             ":openssl"
         ],
-    linkopts = [
-        "-lpthread",
-        "-ldl",
-    ]
+    linkopts = select({
+           ":windows_build" : ["-lpthread", "-lwsock32", "-lcrypt32", "-lws2_32"],
+           "//conditions:default": ["-lpthread", "-ld"],
+       }),
 )
