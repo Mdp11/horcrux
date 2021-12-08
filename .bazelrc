@@ -1,5 +1,7 @@
-build:windows_build --crosstool_top=//toolchain:mingw_suite
+build:w64 --crosstool_top=//toolchain:mingw_suite
 
-build:windows_build --cpu=k8
+build:w64 --cpu=k8
 
-build:windows_build --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+build:w64 --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+
+build:w64 --define windows_build=true
