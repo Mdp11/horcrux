@@ -31,23 +31,27 @@ def _impl(ctx):
         ),
         tool_path(
             name = "cpp",
-            path = "/bin/x86_64-w64-mingw32-cpp",
+            path = "/usr/bin/x86_64-w64-mingw32-cpp",
         ),
         tool_path(
             name = "gcov",
-            path = "/bin/x86_64-w64-mingw32-gcov",
+            path = "/usr/bin/x86_64-w64-mingw32-gcov",
         ),
         tool_path(
             name = "nm",
-            path = "/bin/x86_64-w64-mingw32-nm",
+            path = "/usr/bin/x86_64-w64-mingw32-nm",
         ),
         tool_path(
             name = "objdump",
-            path = "/bin/x86_64-w64-mingw32-objdump",
+            path = "/usr/bin/x86_64-w64-mingw32-objdump",
         ),
         tool_path(
             name = "strip",
-            path = "/bin/x86_64-w64-mingw32-strip",
+            path = "/usr/bin/x86_64-w64-mingw32-strip",
+        ),
+        tool_path(
+            name = "windres",
+            path = "/usr/bin/x86_64-w64-mingw32-windres",
         ),
     ]
 
