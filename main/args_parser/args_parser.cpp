@@ -6,7 +6,7 @@ args_parsing::ArgsParser::ArgsParser(int argc, char **argv)
 {
 	if (argc < 6)
 	{
-		throw ArgsException("wrong number of arguments");
+		throw ArgsException("too few arguments");
 	}
 
 	std::vector<std::string> args(argv + 1, argv + argc);
@@ -20,6 +20,10 @@ args_parsing::ArgsParser::ArgsParser(int argc, char **argv)
 
 	if (command_ == "create")
 	{
+		if(argc > 6)
+		{
+			throw ArgsException("too many arguments");
+		}
 		std::string &option = args.at(1);
 		if (option != "-n")
 		{
