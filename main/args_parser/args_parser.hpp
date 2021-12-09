@@ -9,6 +9,9 @@
 namespace args_parsing
 {
 
+constexpr int MIN_HORCRUXES = 1;
+constexpr int MAX_HORCRUXES = 1000;
+
 class ArgsParser
 {
 public:
@@ -17,13 +20,15 @@ public:
 	static void printUsage();
 
 private:
-	std::string command_;
+	std::string command_{};
 
-	std::string input_file_;
-	std::string output_folder_;
+	int n_horcruxes_{};
+	std::string input_file_{};
+	std::string output_folder_{};
 
-	std::vector<std::string> horcruxes_paths_;
-	std::string output_file;
+	std::string decryption_key_{};
+	std::vector<std::string> horcruxes_paths_{};
+	std::string output_file_{};
 };
 
 }
