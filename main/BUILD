@@ -37,6 +37,6 @@ cc_binary(
         ],
     linkopts = select({
            ":windows_build" : ["-lpthread", "-lwsock32", "-lcrypt32", "-lws2_32"],
-           "//conditions:default": ["-lpthread", "-ld"],
+           "//conditions:default": ["-lpthread", "-ldl"],
        }),
 )
