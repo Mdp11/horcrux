@@ -35,6 +35,7 @@ cc_binary(
     deps = [
             "//main/args_parser",
             "//main/horcrux_generator",
+            "//main/horcrux_loader",
             ":openssl"
         ],
     linkopts = select({

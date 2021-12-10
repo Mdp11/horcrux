@@ -9,3 +9,11 @@ cc_library(
     hdrs = ["include/abstract_horcrux_loader.hpp"],
     strip_include_prefix = "include",
 )
+
+cc_library(
+    name = "horcrux_loader",
+    srcs = ["src/horcrux_loader.cpp"],
+    hdrs = ["include/horcrux_loader.hpp"],
+    strip_include_prefix = "include",
+    deps = [":abstract_horcrux_loader"]
+)

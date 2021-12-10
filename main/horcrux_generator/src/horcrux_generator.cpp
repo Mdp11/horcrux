@@ -5,15 +5,16 @@ horcrux::HorcruxGenerator::HorcruxGenerator(int n_horcruxes, std::string input_f
 {}
 
 void horcrux::HorcruxGenerator::createHorcruxes()
-{
-
-}
+{}
 
 void horcrux::HorcruxGenerator::generateKey()
 {}
+
 void horcrux::HorcruxGenerator::encrypt()
 {}
+
 void horcrux::HorcruxGenerator::split()
 {}
+
 void horcrux::HorcruxGenerator::store()
 {}
