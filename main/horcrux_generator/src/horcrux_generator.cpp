@@ -8,7 +8,7 @@
 #include <openssl/rand.h>
 #include <openssl/err.h>
 #include <openssl/aes.h>
-
+#include <openssl/evp.h>
 
 #include "horcrux_generate_exception.hpp"
 
@@ -20,6 +20,7 @@ void horcrux::HorcruxGenerator::createHorcruxes()
 {
 	generateKey();
 	encrypt();
+	printKey();
 }
 
 void horcrux::HorcruxGenerator::generateKey()
@@ -28,6 +29,19 @@ void horcrux::HorcruxGenerator::generateKey()
 	{
 		throw HorcruxGenerateException("openssl RAND_bytes failed with code " + std::to_string(ERR_get_error()));
 	}
+}
+
+void horcrux::HorcruxGenerator::printKey()
+{
+	const auto predicted_length = 4 * ((KEY_SIZE + 2) / 3);
+	auto encoded_key = reinterpret_cast<char *>(calloc(predicted_length + 1, 1));
+	const auto output_length = EVP_EncodeBlock(reinterpret_cast<unsigned char *>(encoded_key), key_.data(), KEY_SIZE);
+	if (predicted_length != output_length)
+	{
+		throw HorcruxGenerateException("error encoding the key in base64");
+	}
+
+	std::cout << encoded_key << std::endl;
 }
 
 void horcrux::HorcruxGenerator::encrypt()
@@ -43,7 +57,7 @@ void horcrux::HorcruxGenerator::encrypt()
 
 	while (input.peek() != EOF)
 	{
-		input.read(reinterpret_cast<char*>(input_bytes.data()), AES_BLOCK_SIZE);
+		input.read(reinterpret_cast<char *>(input_bytes.data()), AES_BLOCK_SIZE);
 
 		std::vector<unsigned char> in(input.gcount());
 		std::vector<unsigned char> out(input.gcount());
@@ -52,7 +66,7 @@ void horcrux::HorcruxGenerator::encrypt()
 
 		AES_encrypt(in.data(), out.data(), (const AES_KEY *)aes_key.get());
 
-		output.write(reinterpret_cast<char*>(output_bytes.data()), input.gcount());
+		output.write(reinterpret_cast<char *>(output_bytes.data()), input.gcount());
 	}
 
 	input.close();

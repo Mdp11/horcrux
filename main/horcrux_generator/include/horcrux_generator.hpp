@@ -8,6 +8,9 @@
 
 namespace horcrux
 {
+
+constexpr uint8_t KEY_SIZE = 32;
+
 class HorcruxGenerator : public AbstractHorcruxGenerator
 {
 public:
@@ -21,10 +24,11 @@ private:
 	std::string input_file_;
 	std::string output_folder_;
 
-	std::array<uint8_t, 32> key_;
+	std::array<uint8_t, KEY_SIZE> key_;
 
 
 	void generateKey() override;
+	void printKey();
 	void encrypt() override;
 	void split() override;
 	void store() override;
