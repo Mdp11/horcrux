@@ -25,7 +25,6 @@ private:
 
 	std::array<uint8_t, KEY_SIZE> key_;
 
-
 	void generateKey() override;
 	void printKey();
 	void encrypt() override;

@@ -4,6 +4,7 @@
 #include <memory>
 #include <fstream>
 #include <vector>
+#include <filesystem>
 
 #include <openssl/rand.h>
 #include <openssl/err.h>
@@ -20,6 +21,7 @@ void horcrux::HorcruxGenerator::createHorcruxes()
 {
 	generateKey();
 	encrypt();
+	split();
 	printKey();
 }
 
@@ -33,17 +35,6 @@ void horcrux::HorcruxGenerator::generateKey()
 
 void horcrux::HorcruxGenerator::printKey()
 {
-//	const auto predicted_length = 4 * ((KEY_SIZE + 2) / 3);
-//	auto encoded_key = reinterpret_cast<char *>(calloc(predicted_length + 1, 1));
-//	const auto output_length = EVP_EncodeBlock(reinterpret_cast<unsigned char *>(encoded_key), key_.data(), KEY_SIZE);
-//	if (predicted_length != output_length)
-//	{
-//		throw HorcruxGenerateException("error encoding the key in base64");
-//	}
-//
-//	std::cout << encoded_key << std::endl;
-
-
 	const auto predicted_length = 4 * ((KEY_SIZE + 2) / 3);
 
 	const auto output_buffer{std::make_unique<char[]>(predicted_length + 1)};
@@ -91,7 +82,34 @@ void horcrux::HorcruxGenerator::encrypt()
 }
 
 void horcrux::HorcruxGenerator::split()
-{}
+{
+	std::uintmax_t file_size = std::filesystem::file_size("tmp");
+
+	std::uintmax_t horcrux_size = file_size / n_horcruxes_;
+	std::uintmax_t horcrux_remainder_size = file_size % n_horcruxes_;
+
+	std::unique_ptr<char[]> buffer = std::make_unique<char[]>(horcrux_size);
+
+	std::ifstream encrypted_file{"tmp", std::ios::binary};
+
+	for (int i = 0; i < n_horcruxes_; ++i)
+	{
+		std::ofstream horcrux_output{output_folder_ + "/horcrux_" + std::to_string(i), std::ios::binary};
+		if(i == 0)
+		{
+			encrypted_file.read(buffer.get(), horcrux_size + horcrux_remainder_size);
+		}
+		else
+		{
+			encrypted_file.read(buffer.get(), horcrux_size);
+		}
+		horcrux_output.write(buffer.get(), encrypted_file.gcount());
+		horcrux_output.close();
+	}
+
+	encrypted_file.close();
+	std::filesystem::remove("tmp");
+}
 
 void horcrux::HorcruxGenerator::store()
 {}
