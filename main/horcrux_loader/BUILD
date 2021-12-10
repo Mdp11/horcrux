@@ -5,7 +5,7 @@ package(
 )
 
 cc_library(
-    name = "abstract_horcrux_manager",
-    hdrs = ["include/abstract_horcrux_manager.hpp"],
+    name = "abstract_horcrux_loader",
+    hdrs = ["include/abstract_horcrux_loader.hpp"],
     strip_include_prefix = "include",
 )
