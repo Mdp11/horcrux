@@ -11,14 +11,14 @@ args_parsing::ArgsParser::ArgsParser(int argc, char **argv)
 
 	std::vector<std::string> args(argv + 1, argv + argc);
 
-	std::string &command = args.at(0);
-	if (command != "create" && command != "load")
+	std::string &input_command = args.at(0);
+	if (input_command != "create" && command != "load")
 	{
 		throw ArgsException("unknown command \"" + command + "\"");
 	}
-	command_ = std::move(command);
+	command = std::move(input_command);
 
-	if (command_ == "create")
+	if (command == "create")
 	{
 		if(argc > 6)
 		{
@@ -32,16 +32,16 @@ args_parsing::ArgsParser::ArgsParser(int argc, char **argv)
 
 		try
 		{
-			n_horcruxes_ = std::stoi(args.at(2));
-			if (n_horcruxes_ < MIN_HORCRUXES || n_horcruxes_ > MAX_HORCRUXES)
+			n_horcruxes = std::stoi(args.at(2));
+			if (n_horcruxes < MIN_HORCRUXES || n_horcruxes > MAX_HORCRUXES)
 			{
 				throw ArgsException(
 					"horcrux_count must be a number in the range [" + std::to_string(MIN_HORCRUXES) + ","
 						+ std::to_string(MAX_HORCRUXES) + "]");
 			}
 
-			input_file_ = std::move(args.at(3));
-			output_folder_ = std::move(args.at(4));
+			input_file = std::move(args.at(3));
+			output_folder = std::move(args.at(4));
 		}
 		catch (const std::invalid_argument &e)
 		{
@@ -62,14 +62,14 @@ args_parsing::ArgsParser::ArgsParser(int argc, char **argv)
 			throw ArgsException("wrong option \"" + option + "\"");
 		}
 
-		decryption_key_ = std::move(args.at(2));
+		decryption_key = std::move(args.at(2));
 
 		for (auto it = args.begin() + 3; it != args.end() - 1; ++it)
 		{
-			horcruxes_paths_.push_back(std::move(*it));
+			horcruxes_paths.push_back(std::move(*it));
 		}
 
-		output_file_ = std::move(args.back());
+		output_file = std::move(args.back());
 	}
 }
 

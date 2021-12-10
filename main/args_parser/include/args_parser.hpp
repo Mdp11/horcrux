@@ -12,23 +12,21 @@ namespace args_parsing
 constexpr int MIN_HORCRUXES = 1;
 constexpr int MAX_HORCRUXES = 1000;
 
-class ArgsParser
+struct ArgsParser
 {
-public:
 	ArgsParser(int argc, char** argv);
 
 	static void printUsage();
 
-private:
-	std::string command_{};
+	std::string command{};
 
-	int n_horcruxes_{};
-	std::string input_file_{};
-	std::string output_folder_{};
+	int n_horcruxes{};
+	std::string input_file{};
+	std::string output_folder{};
 
-	std::string decryption_key_{};
-	std::vector<std::string> horcruxes_paths_{};
-	std::string output_file_{};
+	std::string decryption_key{};
+	std::vector<std::string> horcruxes_paths{};
+	std::string output_file{};
 };
 
 }
