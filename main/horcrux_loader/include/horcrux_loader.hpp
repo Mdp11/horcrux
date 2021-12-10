@@ -1,10 +1,12 @@
-#ifndef HORCRUX_MAIN_HORCRUX_LOADER_INCLUDE_HORCRUX_LOADER
-#define HORCRUX_MAIN_HORCRUX_LOADER_INCLUDE_HORCRUX_LOADER
+#ifndef HORCRUX_MAIN_HORCRUX_LOADER_INCLUDE_HORCRUX_LOADER_HPP
+#define HORCRUX_MAIN_HORCRUX_LOADER_INCLUDE_HORCRUX_LOADER_HPP
 
 #include <string>
 #include <vector>
+#include <array>
 
 #include "abstract_horcrux_loader.hpp"
+#include "constants.hpp"
 
 namespace horcrux
 {
@@ -20,11 +22,14 @@ private:
 	std::vector<std::string> horcruxes_paths_;
 	std::string output_file_;
 
+	std::array<uint8_t, KEY_SIZE> decoded_key_;
+
 	void join() override;
+	void decode_key();
 	void decrypt() override;
 	void store() override;
 };
 }
 
 
-#endif //HORCRUX_MAIN_HORCRUX_LOADER_INCLUDE_HORCRUX_LOADER
+#endif //HORCRUX_MAIN_HORCRUX_LOADER_INCLUDE_HORCRUX_LOADER_HPP

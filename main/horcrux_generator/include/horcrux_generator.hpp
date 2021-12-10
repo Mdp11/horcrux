@@ -1,15 +1,14 @@
-#ifndef HORCRUX_MAIN_HORCRUX_GENERATOR_INCLUDE_HORCRUX_GENERATOR
-#define HORCRUX_MAIN_HORCRUX_GENERATOR_INCLUDE_HORCRUX_GENERATOR
+#ifndef HORCRUX_MAIN_HORCRUX_GENERATOR_INCLUDE_HORCRUX_GENERATOR_HPP
+#define HORCRUX_MAIN_HORCRUX_GENERATOR_INCLUDE_HORCRUX_GENERATOR_HPP
 
 #include <array>
 #include <string>
 
 #include "abstract_horcrux_generator.hpp"
+#include "constants.hpp"
 
 namespace horcrux
 {
-
-constexpr uint8_t KEY_SIZE = 32;
 
 class HorcruxGenerator : public AbstractHorcruxGenerator
 {
@@ -36,4 +35,4 @@ private:
 }
 
 
-#endif //HORCRUX_MAIN_HORCRUX_GENERATOR_INCLUDE_HORCRUX_GENERATOR
+#endif //HORCRUX_MAIN_HORCRUX_GENERATOR_INCLUDE_HORCRUX_GENERATOR_HPP

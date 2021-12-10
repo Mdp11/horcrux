@@ -20,6 +20,7 @@ cc_library(
     strip_include_prefix = "include",
     deps = [
         ":abstract_horcrux_generator",
-        "//main:openssl"
+        "//main:openssl",
+        "//main/utils:constants"
     ]
 )

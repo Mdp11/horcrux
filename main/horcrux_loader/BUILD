@@ -15,5 +15,9 @@ cc_library(
     srcs = ["src/horcrux_loader.cpp"],
     hdrs = ["include/horcrux_loader.hpp"],
     strip_include_prefix = "include",
-    deps = [":abstract_horcrux_loader"]
+    deps = [
+        ":abstract_horcrux_loader",
+        "//main:openssl",
+        "//main/utils:constants"
+    ]
 )
