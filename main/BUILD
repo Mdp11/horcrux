@@ -36,7 +36,6 @@ cc_binary(
             "//main/args_parser",
             "//main/horcrux_generator",
             "//main/horcrux_loader",
-            ":openssl"
         ],
     linkopts = select({
            ":windows_build" : ["-lpthread", "-lwsock32", "-lcrypt32", "-lws2_32"],

@@ -13,7 +13,13 @@ cc_library(
 cc_library(
     name = "horcrux_generator",
     srcs = ["src/horcrux_generator.cpp"],
-    hdrs = ["include/horcrux_generator.hpp"],
+    hdrs = [
+        "include/horcrux_generator.hpp",
+        "include/horcrux_generate_exception.hpp"
+        ],
     strip_include_prefix = "include",
-    deps = [":abstract_horcrux_generator"]
+    deps = [
+        ":abstract_horcrux_generator",
+        "//main:openssl"
+    ]
 )
