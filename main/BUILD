@@ -30,7 +30,7 @@ configure_make(
 )
 
 cc_binary(
-    name = "horcrux",
+    name = "horcrux_main",
     srcs = ["main.cpp"],
     deps = [
             "//main/args_parser",
