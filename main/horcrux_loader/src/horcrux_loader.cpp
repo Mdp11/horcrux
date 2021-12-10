@@ -21,6 +21,7 @@ horcrux::HorcruxLoader::HorcruxLoader(std::string decryption_key,
 void horcrux::HorcruxLoader::loadHorcruxes()
 {
 	decodeKey();
+	join();
 	decrypt();
 }
 
@@ -76,6 +77,3 @@ void horcrux::HorcruxLoader::decrypt()
 	input.close();
 	output.close();
 }
-
-void horcrux::HorcruxLoader::store()
-{}

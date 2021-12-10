@@ -29,7 +29,6 @@ private:
 	void printKey();
 	void encrypt() override;
 	void split() override;
-	void store() override;
 };
 }
 

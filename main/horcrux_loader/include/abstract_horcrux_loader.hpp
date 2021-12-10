@@ -13,7 +13,6 @@ public:
 private:
 	virtual void join() = 0;
 	virtual void decrypt() = 0;
-	virtual void store() = 0;
 };
 }
 

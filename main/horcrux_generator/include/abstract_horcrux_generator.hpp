@@ -14,7 +14,6 @@ private:
 	virtual void generateKey() = 0;
 	virtual void encrypt() = 0;
 	virtual void split() = 0;
-	virtual void store() = 0;
 };
 }
 

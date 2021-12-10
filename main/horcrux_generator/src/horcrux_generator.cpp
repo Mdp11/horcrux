@@ -110,6 +110,3 @@ void horcrux::HorcruxGenerator::split()
 	encrypted_file.close();
 	std::filesystem::remove("tmp");
 }
-
-void horcrux::HorcruxGenerator::store()
-{}

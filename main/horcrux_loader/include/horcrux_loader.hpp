@@ -27,7 +27,6 @@ private:
 	void decodeKey();
 	void join() override;
 	void decrypt() override;
-	void store() override;
 };
 }
 
