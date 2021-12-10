@@ -11,9 +11,9 @@ Program to encrypt and split a file into several "horcruxes" and to subsquently 
 ### Build
 
 ##### Dependencies:
-- Bazel 4.2.1
+- bazel 4.2.1
 - gcc 9.3.0 (for linux build)
-- mingw 7.0.0 (for windows build)
+- mingw-w64 7.0.0 (for windows build)
 
 The listed versions are guaranteed to work, but older versions may still work.
 
