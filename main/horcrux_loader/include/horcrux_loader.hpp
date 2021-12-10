@@ -24,8 +24,8 @@ private:
 
 	std::array<uint8_t, KEY_SIZE> decoded_key_;
 
+	void decodeKey();
 	void join() override;
-	void decode_key();
 	void decrypt() override;
 	void store() override;
 };
