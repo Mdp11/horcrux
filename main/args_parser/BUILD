@@ -6,5 +6,17 @@ package(
 
 cc_library(
     name = "args_parser",
-    srcs = ["args_parser.cpp", "args_parser.hpp", "args_exception.h"],
+    srcs = ["src/args_parser.cpp"],
+    hdrs = ["include/args_parser.hpp", "include/args_exception.hpp"],
+    strip_include_prefix = "include",
+)
+
+cc_test(
+  name = "args_parser_tests",
+  size = "small",
+  srcs = ["test/test_args_parser.cpp"],
+  deps = [
+      "@com_google_googletest//:gtest_main",
+      ":args_parser"
+      ],
 )

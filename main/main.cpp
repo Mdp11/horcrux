@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "args_parser/args_parser.hpp"
+#include "args_parser.hpp"
 
 int main(int argc, char **argv)
 {

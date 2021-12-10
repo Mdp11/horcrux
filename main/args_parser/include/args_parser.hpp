@@ -1,10 +1,10 @@
-#ifndef HORCRUX_MAIN_ARGS_PARSER_ARGSPARSER_H
-#define HORCRUX_MAIN_ARGS_PARSER_ARGSPARSER_H
+#ifndef HORCRUX_MAIN_ARGS_PARSER_ARGSPARSER_HPP
+#define HORCRUX_MAIN_ARGS_PARSER_ARGSPARSER_HPP
 
 #include <string>
 #include <vector>
 
-#include "args_exception.h"
+#include "args_exception.hpp"
 
 namespace args_parsing
 {
@@ -33,4 +33,4 @@ private:
 
 }
 
-#endif //HORCRUX_MAIN_ARGS_PARSER_ARGSPARSER_H
+#endif //HORCRUX_MAIN_ARGS_PARSER_ARGSPARSER_HPP
