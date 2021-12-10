@@ -33,15 +33,33 @@ void horcrux::HorcruxGenerator::generateKey()
 
 void horcrux::HorcruxGenerator::printKey()
 {
+//	const auto predicted_length = 4 * ((KEY_SIZE + 2) / 3);
+//	auto encoded_key = reinterpret_cast<char *>(calloc(predicted_length + 1, 1));
+//	const auto output_length = EVP_EncodeBlock(reinterpret_cast<unsigned char *>(encoded_key), key_.data(), KEY_SIZE);
+//	if (predicted_length != output_length)
+//	{
+//		throw HorcruxGenerateException("error encoding the key in base64");
+//	}
+//
+//	std::cout << encoded_key << std::endl;
+
+
 	const auto predicted_length = 4 * ((KEY_SIZE + 2) / 3);
-	auto encoded_key = reinterpret_cast<char *>(calloc(predicted_length + 1, 1));
-	const auto output_length = EVP_EncodeBlock(reinterpret_cast<unsigned char *>(encoded_key), key_.data(), KEY_SIZE);
-	if (predicted_length != output_length)
+
+	const auto output_buffer{std::make_unique<char[]>(predicted_length + 1)};
+
+	const std::vector<unsigned char> chars{key_.begin(), key_.end()};
+
+	const auto output_length = EVP_EncodeBlock(reinterpret_cast<unsigned char *>(output_buffer.get()),
+											   chars.data(),
+											   static_cast<int>(chars.size()));
+
+	if (predicted_length != static_cast<unsigned long>(output_length))
 	{
 		throw HorcruxGenerateException("error encoding the key in base64");
 	}
 
-	std::cout << encoded_key << std::endl;
+	std::cout << output_buffer.get() << std::endl;
 }
 
 void horcrux::HorcruxGenerator::encrypt()
@@ -53,7 +71,6 @@ void horcrux::HorcruxGenerator::encrypt()
 	std::ofstream output("tmp", std::ios::binary);
 
 	std::array<unsigned char, AES_BLOCK_SIZE> input_bytes;
-	std::array<unsigned char, AES_BLOCK_SIZE> output_bytes;
 
 	while (input.peek() != EOF)
 	{
@@ -66,7 +83,7 @@ void horcrux::HorcruxGenerator::encrypt()
 
 		AES_encrypt(in.data(), out.data(), (const AES_KEY *)aes_key.get());
 
-		output.write(reinterpret_cast<char *>(output_bytes.data()), input.gcount());
+		output.write(reinterpret_cast<char *>(out.data()), input.gcount());
 	}
 
 	input.close();

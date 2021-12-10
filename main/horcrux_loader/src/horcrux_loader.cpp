@@ -26,18 +26,24 @@ void horcrux::HorcruxLoader::loadHorcruxes()
 
 void horcrux::HorcruxLoader::decodeKey()
 {
-	const auto predicted_length = 3 * decoded_key_.size() / 4;
-	auto decoded_key = reinterpret_cast<unsigned char *>(calloc(predicted_length + 1, 1));
-	const auto output_length = EVP_DecodeBlock(decoded_key, reinterpret_cast<const unsigned char *>(decryption_key_.data()), decoded_key_.size());
-	if (predicted_length != output_length)
+	const auto predicted_length = 3 * decryption_key_.length() / 4;
+
+	const auto output_buffer{std::make_unique<char[]>(predicted_length + 1)};
+
+	const std::vector<unsigned char> chars{decryption_key_.begin(), decryption_key_.end()};
+
+	const auto output_length = EVP_DecodeBlock(reinterpret_cast<unsigned char *>(output_buffer.get()),
+											   chars.data(),
+											   static_cast<int>(chars.size()));
+
+	if (predicted_length != static_cast<unsigned long>(output_length))
 	{
 		throw HorcruxLoadException("error decoding key from base64");
 	}
 
-	for(int i = 0; i < output_length; ++i)
-	{
-		decoded_key_.at(i) = decoded_key[i];
-	}
+	std::string key = output_buffer.get();
+
+	std::copy(key.begin(), key.end(), decoded_key_.begin());
 }
 
 void horcrux::HorcruxLoader::join()
@@ -49,10 +55,9 @@ void horcrux::HorcruxLoader::decrypt()
 	AES_set_decrypt_key(decoded_key_.data(), 256, aes_key.get());
 
 	std::ifstream input("tmp", std::ios::binary);
-	std::ofstream output(output_file_, std::ios::binary); //TODO: check output file does not exist
+	std::ofstream output(output_file_, std::ios::binary);
 
 	std::array<unsigned char, AES_BLOCK_SIZE> input_bytes;
-	std::array<unsigned char, AES_BLOCK_SIZE> output_bytes;
 
 	while (input.peek() != EOF)
 	{
@@ -65,7 +70,7 @@ void horcrux::HorcruxLoader::decrypt()
 
 		AES_decrypt(in.data(), out.data(), (const AES_KEY *)aes_key.get());
 
-		output.write(reinterpret_cast<char *>(output_bytes.data()), input.gcount());
+		output.write(reinterpret_cast<char *>(out.data()), input.gcount());
 	}
 
 	input.close();
