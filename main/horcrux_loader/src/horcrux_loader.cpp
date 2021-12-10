@@ -29,15 +29,15 @@ void horcrux::HorcruxLoader::loadHorcruxes()
 
 void horcrux::HorcruxLoader::checkInputs()
 {
-	for(const auto& path : horcruxes_paths_)
+	for (const auto &path: horcruxes_paths_)
 	{
-		if(!std::filesystem::exists(path))
+		if (!std::filesystem::exists(path))
 		{
-			throw HorcruxLoadException(path + "does not exist");
+			throw HorcruxLoadException(path + " does not exist");
 		}
-		if(std::filesystem::is_directory(path))
+		if (std::filesystem::is_directory(path))
 		{
-			throw HorcruxLoadException(path + "is not a file");
+			throw HorcruxLoadException(path + " is not a file");
 		}
 	}
 }
@@ -67,6 +67,29 @@ void horcrux::HorcruxLoader::decodeKey()
 void horcrux::HorcruxLoader::join()
 {
 
+	std::ofstream joined_file{"tmp", std::ios::binary};
+	if (joined_file.fail())
+	{
+		throw HorcruxLoadException("error creating joined file");
+	}
+
+
+	for (const auto &horcrux_path: horcruxes_paths_)
+	{
+		//TODO: read and write in fixed size chunks
+
+		std::ifstream horcrux_file{horcrux_path, std::ios::binary};
+		if (horcrux_file.fail())
+		{
+			throw HorcruxLoadException(std::string{"error opening " + horcrux_path});
+		}
+
+		joined_file << horcrux_file.rdbuf();
+
+		horcrux_file.close();
+	}
+
+	joined_file.close();
 }
 
 void horcrux::HorcruxLoader::decrypt()
@@ -75,7 +98,7 @@ void horcrux::HorcruxLoader::decrypt()
 	AES_set_decrypt_key(decoded_key_.data(), 256, aes_key.get());
 
 	std::ifstream input("tmp", std::ios::binary);
-	if(input.fail())
+	if (input.fail())
 	{
 		throw HorcruxLoadException("error opening joined file");
 	}
@@ -83,7 +106,7 @@ void horcrux::HorcruxLoader::decrypt()
 	//TODO: create directories up to output_file if they do not exist
 
 	std::ofstream output(output_file_, std::ios::binary);
-	if(output.fail())
+	if (output.fail())
 	{
 		throw HorcruxLoadException("error creating output file");
 	}
@@ -106,4 +129,6 @@ void horcrux::HorcruxLoader::decrypt()
 
 	input.close();
 	output.close();
+
+	std::filesystem::remove("tmp");
 }

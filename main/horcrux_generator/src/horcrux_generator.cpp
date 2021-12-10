@@ -35,22 +35,12 @@ void horcrux::HorcruxGenerator::checkInputs()
 
 	if(!std::filesystem::exists(input_file_))
 	{
-		throw HorcruxGenerateException(input_file_ + "does not exist");
+		throw HorcruxGenerateException(input_file_ + " does not exist");
 	}
 
 	if(std::filesystem::is_directory(input_file_))
 	{
-		throw HorcruxGenerateException(input_file_ + "is not a file");
-	}
-
-	if(!std::filesystem::exists(output_folder_))
-	{
-		throw HorcruxGenerateException(output_folder_ + "does not exist");
-	}
-
-	if(!std::filesystem::is_directory(output_folder_))
-	{
-		throw HorcruxGenerateException(output_folder_ + "is not a directory");
+		throw HorcruxGenerateException(input_file_ + " is not a file");
 	}
 }
 
@@ -138,6 +128,7 @@ void horcrux::HorcruxGenerator::split()
 
 	std::filesystem::create_directories(output_folder_);
 
+	//TODO: read and write in fixed size chunks
 	for (int i = 0; i < n_horcruxes_; ++i)
 	{
 		std::ofstream horcrux_output{output_folder_ + "/horcrux_" + std::to_string(i), std::ios::binary};
@@ -146,6 +137,7 @@ void horcrux::HorcruxGenerator::split()
 			std::filesystem::remove("tmp");
 			throw HorcruxGenerateException("error creating horcrux file");
 		}
+
 		if(i == 0)
 		{
 			encrypted_file.read(buffer.get(), horcrux_size + horcrux_remainder_size);
