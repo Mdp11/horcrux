@@ -12,7 +12,7 @@ args_parsing::ArgsParser::ArgsParser(int argc, char **argv)
 	std::vector<std::string> args(argv + 1, argv + argc);
 
 	std::string &input_command = args.at(0);
-	if (input_command != "create" && command != "load")
+	if (input_command != "create" && input_command != "load")
 	{
 		throw ArgsException("unknown command \"" + command + "\"");
 	}
