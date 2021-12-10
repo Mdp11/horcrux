@@ -9,3 +9,11 @@ cc_library(
     hdrs = ["include/abstract_horcrux_generator.hpp"],
     strip_include_prefix = "include",
 )
+
+cc_library(
+    name = "horcrux_generator",
+    srcs = ["src/horcrux_generator.cpp"],
+    hdrs = ["include/horcrux_generator.hpp"],
+    strip_include_prefix = "include",
+    deps = [":abstract_horcrux_generator"]
+)
