@@ -24,6 +24,7 @@ private:
 
 	std::array<uint8_t, KEY_SIZE> decoded_key_;
 
+	void checkInputs();
 	void decodeKey();
 	void join() override;
 	void decrypt() override;

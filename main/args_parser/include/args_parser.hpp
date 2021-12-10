@@ -9,9 +9,6 @@
 namespace args_parsing
 {
 
-constexpr int MIN_HORCRUXES = 1;
-constexpr int MAX_HORCRUXES = 1000;
-
 struct ArgsParser
 {
 	ArgsParser(int argc, char** argv);

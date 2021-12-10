@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "constants.hpp"
+
 args_parsing::ArgsParser::ArgsParser(int argc, char **argv)
 {
 	if (argc < 6)
@@ -33,11 +35,11 @@ args_parsing::ArgsParser::ArgsParser(int argc, char **argv)
 		try
 		{
 			n_horcruxes = std::stoi(args.at(2));
-			if (n_horcruxes < MIN_HORCRUXES || n_horcruxes > MAX_HORCRUXES)
+			if (n_horcruxes < horcrux::MIN_HORCRUXES || n_horcruxes > horcrux::MAX_HORCRUXES)
 			{
 				throw ArgsException(
-					"horcrux_count must be a number in the range [" + std::to_string(MIN_HORCRUXES) + ","
-						+ std::to_string(MAX_HORCRUXES) + "]");
+					"horcrux_count must be a number in the range [" + std::to_string(horcrux::MIN_HORCRUXES) + ","
+						+ std::to_string(horcrux::MAX_HORCRUXES) + "]");
 			}
 
 			input_file = std::move(args.at(3));
@@ -45,13 +47,13 @@ args_parsing::ArgsParser::ArgsParser(int argc, char **argv)
 		}
 		catch (const std::invalid_argument &e)
 		{
-			throw ArgsException("horcrux_count must be a number in the range [" + std::to_string(MIN_HORCRUXES) + ","
-									+ std::to_string(MAX_HORCRUXES) + "]");
+			throw ArgsException("horcrux_count must be a number in the range [" + std::to_string(horcrux::MIN_HORCRUXES) + ","
+									+ std::to_string(horcrux::MAX_HORCRUXES) + "]");
 		}
 		catch (const std::out_of_range &e)
 		{
-			throw ArgsException("horcrux_count must be a number in the range [" + std::to_string(MIN_HORCRUXES) + ","
-									+ std::to_string(MAX_HORCRUXES) + "]");
+			throw ArgsException("horcrux_count must be a number in the range [" + std::to_string(horcrux::MIN_HORCRUXES) + ","
+									+ std::to_string(horcrux::MAX_HORCRUXES) + "]");
 		}
 	}
 	else

@@ -9,6 +9,7 @@ cc_library(
     srcs = ["src/args_parser.cpp"],
     hdrs = ["include/args_parser.hpp", "include/args_exception.hpp"],
     strip_include_prefix = "include",
+    deps = ["//main/utils:constants"]
 )
 
 cc_test(
@@ -17,6 +18,6 @@ cc_test(
   srcs = ["test/args_parser.cpp"],
   deps = [
       "@com_google_googletest//:gtest_main",
-      ":args_parser"
+      ":args_parser",
       ],
 )

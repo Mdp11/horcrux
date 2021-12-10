@@ -19,10 +19,39 @@ horcrux::HorcruxGenerator::HorcruxGenerator(int n_horcruxes, std::string input_f
 
 void horcrux::HorcruxGenerator::createHorcruxes()
 {
+	checkInputs();
 	generateKey();
 	encrypt();
 	split();
 	printKey();
+}
+
+void horcrux::HorcruxGenerator::checkInputs()
+{
+	if(n_horcruxes_ < MIN_HORCRUXES || n_horcruxes_ > MAX_HORCRUXES)
+	{
+		throw HorcruxGenerateException("invalid number of horcruxes specified");
+	}
+
+	if(!std::filesystem::exists(input_file_))
+	{
+		throw HorcruxGenerateException(input_file_ + "does not exist");
+	}
+
+	if(std::filesystem::is_directory(input_file_))
+	{
+		throw HorcruxGenerateException(input_file_ + "is not a file");
+	}
+
+	if(!std::filesystem::exists(output_folder_))
+	{
+		throw HorcruxGenerateException(output_folder_ + "does not exist");
+	}
+
+	if(!std::filesystem::is_directory(output_folder_))
+	{
+		throw HorcruxGenerateException(output_folder_ + "is not a directory");
+	}
 }
 
 void horcrux::HorcruxGenerator::generateKey()
@@ -58,8 +87,18 @@ void horcrux::HorcruxGenerator::encrypt()
 	std::unique_ptr<AES_KEY> aes_key = std::make_unique<AES_KEY>();
 	AES_set_encrypt_key(key_.data(), 256, aes_key.get());
 
-	std::ifstream input(input_file_, std::ios::binary); //TODO: check input file exists and is a file
+	std::ifstream input(input_file_, std::ios::binary);
+
+	if(input.fail())
+	{
+		throw HorcruxGenerateException("error opening " + input_file_);
+	}
+
 	std::ofstream output("tmp", std::ios::binary);
+	if(output.fail())
+	{
+		throw HorcruxGenerateException("error creating temporary encrypted file");
+	}
 
 	std::array<unsigned char, AES_BLOCK_SIZE> input_bytes;
 
@@ -91,10 +130,22 @@ void horcrux::HorcruxGenerator::split()
 	std::unique_ptr<char[]> buffer = std::make_unique<char[]>(horcrux_size);
 
 	std::ifstream encrypted_file{"tmp", std::ios::binary};
+	if(encrypted_file.fail())
+	{
+		std::filesystem::remove("tmp");
+		throw HorcruxGenerateException("error opening generated encrypted file");
+	}
+
+	std::filesystem::create_directories(output_folder_);
 
 	for (int i = 0; i < n_horcruxes_; ++i)
 	{
 		std::ofstream horcrux_output{output_folder_ + "/horcrux_" + std::to_string(i), std::ios::binary};
+		if(horcrux_output.fail())
+		{
+			std::filesystem::remove("tmp");
+			throw HorcruxGenerateException("error creating horcrux file");
+		}
 		if(i == 0)
 		{
 			encrypted_file.read(buffer.get(), horcrux_size + horcrux_remainder_size);
