@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <filesystem>
+#include <algorithm>
 
 #include <openssl/rand.h>
 #include <openssl/err.h>
@@ -28,17 +29,17 @@ void horcrux::HorcruxGenerator::createHorcruxes()
 
 void horcrux::HorcruxGenerator::checkInputs()
 {
-	if(n_horcruxes_ < MIN_HORCRUXES || n_horcruxes_ > MAX_HORCRUXES)
+	if (n_horcruxes_ < MIN_HORCRUXES || n_horcruxes_ > MAX_HORCRUXES)
 	{
 		throw HorcruxGenerateException("invalid number of horcruxes specified");
 	}
 
-	if(!std::filesystem::exists(input_file_))
+	if (!std::filesystem::exists(input_file_))
 	{
 		throw HorcruxGenerateException(input_file_ + " does not exist");
 	}
 
-	if(std::filesystem::is_directory(input_file_))
+	if (std::filesystem::is_directory(input_file_))
 	{
 		throw HorcruxGenerateException(input_file_ + " is not a file");
 	}
@@ -74,40 +75,48 @@ void horcrux::HorcruxGenerator::printKey()
 
 void horcrux::HorcruxGenerator::encrypt()
 {
+
 	std::unique_ptr<AES_KEY> aes_key = std::make_unique<AES_KEY>();
 	AES_set_encrypt_key(key_.data(), 256, aes_key.get());
 
 	std::ifstream input(input_file_, std::ios::binary);
 
-	if(input.fail())
+	if (input.fail())
 	{
 		throw HorcruxGenerateException("error opening " + input_file_);
 	}
 
 	std::ofstream output("tmp", std::ios::binary);
-	if(output.fail())
+	if (output.fail())
 	{
 		throw HorcruxGenerateException("error creating temporary encrypted file");
 	}
 
-	std::array<unsigned char, AES_BLOCK_SIZE> input_bytes;
-
 	while (input.peek() != EOF)
 	{
+		std::array<unsigned char, AES_BLOCK_SIZE> input_bytes{0};
+		std::array<unsigned char, AES_BLOCK_SIZE> output_bytes{0};
+
 		input.read(reinterpret_cast<char *>(input_bytes.data()), AES_BLOCK_SIZE);
 
-		std::vector<unsigned char> in(input.gcount());
-		std::vector<unsigned char> out(input.gcount());
+		if (input.gcount() < AES_BLOCK_SIZE)
+		{
+			auto required_padding = AES_BLOCK_SIZE - input.gcount();
 
-		std::copy(input_bytes.begin(), input_bytes.begin() + input.gcount(), in.begin());
+			for (std::size_t i = input_bytes.size() - required_padding; i < input_bytes.size(); ++i)
+			{
+				input_bytes.at(i) = required_padding;
+			}
+		}
 
-		AES_encrypt(in.data(), out.data(), (const AES_KEY *)aes_key.get());
+		AES_encrypt(input_bytes.data(), output_bytes.data(), (const AES_KEY *)aes_key.get());
 
-		output.write(reinterpret_cast<char *>(out.data()), input.gcount());
+		output.write(reinterpret_cast<char *>(output_bytes.data()), AES_BLOCK_SIZE);
 	}
 
 	input.close();
 	output.close();
+
 }
 
 void horcrux::HorcruxGenerator::split()
@@ -120,7 +129,7 @@ void horcrux::HorcruxGenerator::split()
 	std::unique_ptr<char[]> buffer = std::make_unique<char[]>(horcrux_size);
 
 	std::ifstream encrypted_file{"tmp", std::ios::binary};
-	if(encrypted_file.fail())
+	if (encrypted_file.fail())
 	{
 		std::filesystem::remove("tmp");
 		throw HorcruxGenerateException("error opening generated encrypted file");
@@ -132,13 +141,13 @@ void horcrux::HorcruxGenerator::split()
 	for (int i = 0; i < n_horcruxes_; ++i)
 	{
 		std::ofstream horcrux_output{output_folder_ + "/horcrux_" + std::to_string(i), std::ios::binary};
-		if(horcrux_output.fail())
+		if (horcrux_output.fail())
 		{
 			std::filesystem::remove("tmp");
 			throw HorcruxGenerateException("error creating horcrux file");
 		}
 
-		if(i == 0)
+		if (i == 0)
 		{
 			encrypted_file.read(buffer.get(), horcrux_size + horcrux_remainder_size);
 		}

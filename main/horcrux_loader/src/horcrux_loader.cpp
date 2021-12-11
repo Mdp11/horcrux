@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 #include <openssl/rand.h>
 #include <openssl/err.h>
@@ -112,19 +113,15 @@ void horcrux::HorcruxLoader::decrypt()
 	}
 
 	std::array<unsigned char, AES_BLOCK_SIZE> input_bytes;
+	std::array<unsigned char, AES_BLOCK_SIZE> output_bytes;
 
 	while (input.peek() != EOF)
 	{
 		input.read(reinterpret_cast<char *>(input_bytes.data()), AES_BLOCK_SIZE);
 
-		std::vector<unsigned char> in(input.gcount());
-		std::vector<unsigned char> out(input.gcount());
+		AES_decrypt(input_bytes.data(), output_bytes.data(), (const AES_KEY *)aes_key.get());
 
-		std::copy(input_bytes.begin(), input_bytes.begin() + input.gcount(), in.begin());
-
-		AES_decrypt(in.data(), out.data(), (const AES_KEY *)aes_key.get());
-
-		output.write(reinterpret_cast<char *>(out.data()), input.gcount());
+		output.write(reinterpret_cast<char *>(output_bytes.data()), input.gcount());
 	}
 
 	input.close();
