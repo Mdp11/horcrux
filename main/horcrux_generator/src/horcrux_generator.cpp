@@ -160,7 +160,11 @@ void horcrux::HorcruxGenerator::split()
 	{
 		std::cout << "\rGenerating horcrux " << i + 1 << "/" << n_horcruxes_ << "..." << std::flush;
 
-		std::ofstream horcrux_output{output_folder_ + "/horcrux_" + std::to_string(i), std::ios::binary | std::ios::trunc};
+		std::string current_horcrux_name{"horcrux_" + std::to_string(i)};
+		std::filesystem::path current_horcrux_path{output_folder_};
+		current_horcrux_path /= current_horcrux_name;
+
+		std::ofstream horcrux_output{current_horcrux_path, std::ios::binary | std::ios::trunc};
 		if (horcrux_output.fail())
 		{
 			std::filesystem::remove(TMP_FILE);
