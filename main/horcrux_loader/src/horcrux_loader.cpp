@@ -80,6 +80,7 @@ void horcrux::HorcruxLoader::join()
 	for (std::size_t i = 0;  i < horcruxes_paths_.size(); ++i)
 	{
 		std::cout << "Joining horcrux " << i + 1 << "/" << horcruxes_paths_.size() << "..." << std::endl;
+
 		std::uintmax_t horcrux_size = std::filesystem::file_size(horcruxes_paths_.at(i));
 		std::uintmax_t rw_size = std::min(horcrux_size, MAX_RW_BYTES);
 
@@ -116,7 +117,7 @@ void horcrux::HorcruxLoader::decrypt()
 	AES_set_decrypt_key(decoded_key_.data(), 256, aes_key.get());
 
 	std::uintmax_t file_size = std::filesystem::file_size(TMP_FILE);
-	std::uintmax_t total_chunks = file_size / (AES_BLOCK_SIZE * MAX_RW_BYTES);
+	std::uintmax_t total_chunks = file_size / AES_BLOCK_SIZE;
 	std::uintmax_t current_chunk{1};
 	std::uintmax_t current_percent{0};
 
@@ -134,12 +135,12 @@ void horcrux::HorcruxLoader::decrypt()
 		throw HorcruxLoadException("error creating output file " + output_file_);
 	}
 
-	std::array<unsigned char, AES_BLOCK_SIZE * MAX_RW_BYTES> input_bytes;
-	std::array<unsigned char, AES_BLOCK_SIZE * MAX_RW_BYTES> output_bytes;
+	std::array<unsigned char, AES_BLOCK_SIZE> input_bytes;
+	std::array<unsigned char, AES_BLOCK_SIZE> output_bytes;
 
 	while (input.peek() != EOF)
 	{
-		input.read(reinterpret_cast<char *>(input_bytes.data()), AES_BLOCK_SIZE * MAX_RW_BYTES);
+		input.read(reinterpret_cast<char *>(input_bytes.data()), AES_BLOCK_SIZE);
 
 		AES_decrypt(input_bytes.data(), output_bytes.data(), (const AES_KEY *)aes_key.get());
 
