@@ -122,11 +122,8 @@ void horcrux::HorcruxGenerator::encrypt()
 void horcrux::HorcruxGenerator::split()
 {
 	std::uintmax_t file_size = std::filesystem::file_size("tmp");
-
 	std::uintmax_t horcrux_size = file_size / n_horcruxes_;
 	std::uintmax_t horcrux_remainder_size = file_size % n_horcruxes_;
-
-	std::unique_ptr<char[]> buffer = std::make_unique<char[]>(horcrux_size);
 
 	std::ifstream encrypted_file{"tmp", std::ios::binary};
 	if (encrypted_file.fail())
@@ -137,8 +134,12 @@ void horcrux::HorcruxGenerator::split()
 
 	std::filesystem::create_directories(output_folder_);
 
-	//TODO: read and write in fixed size chunks
-	for (int i = 0; i < n_horcruxes_; ++i)
+	std::array<char, MAX_RW_BYTES> buffer{};
+	std::uintmax_t rw_size = std::min(horcrux_size, MAX_RW_BYTES);
+
+	int i{0};
+
+	for (; i < n_horcruxes_; ++i)
 	{
 		std::ofstream horcrux_output{output_folder_ + "/horcrux_" + std::to_string(i), std::ios::binary};
 		if (horcrux_output.fail())
@@ -147,15 +148,34 @@ void horcrux::HorcruxGenerator::split()
 			throw HorcruxGenerateException("error creating horcrux file");
 		}
 
-		if (i == 0)
+		for (unsigned int j = 0; j < horcrux_size / rw_size; ++j)
 		{
-			encrypted_file.read(buffer.get(), horcrux_size + horcrux_remainder_size);
+			encrypted_file.read(buffer.data(), rw_size);
+			horcrux_output.write(buffer.data(), encrypted_file.gcount());
 		}
-		else
+
+		if (horcrux_size % rw_size != 0)
 		{
-			encrypted_file.read(buffer.get(), horcrux_size);
+			encrypted_file.read(buffer.data(), horcrux_size % rw_size);
+			horcrux_output.write(buffer.data(), encrypted_file.gcount());
 		}
-		horcrux_output.write(buffer.get(), encrypted_file.gcount());
+
+		if (i + 1 == n_horcruxes_ && horcrux_remainder_size != 0)
+		{
+			rw_size = std::min(horcrux_remainder_size, MAX_RW_BYTES);
+
+			for (unsigned int j = 0; j < horcrux_remainder_size / rw_size; ++j)
+			{
+				encrypted_file.read(buffer.data(), rw_size);
+				horcrux_output.write(buffer.data(), encrypted_file.gcount());
+			}
+			if (horcrux_remainder_size % rw_size != 0)
+			{
+				encrypted_file.read(buffer.data(), horcrux_remainder_size % rw_size);
+				horcrux_output.write(buffer.data(), encrypted_file.gcount());
+			}
+		}
+
 		horcrux_output.close();
 	}
 

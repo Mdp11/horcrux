@@ -74,18 +74,31 @@ void horcrux::HorcruxLoader::join()
 		throw HorcruxLoadException("error creating joined file");
 	}
 
+	std::array<char, MAX_RW_BYTES> buffer{};
 
 	for (const auto &horcrux_path: horcruxes_paths_)
 	{
-		//TODO: read and write in fixed size chunks
+		std::uintmax_t horcrux_size = std::filesystem::file_size(horcrux_path);
+		std::uintmax_t rw_size = std::min(horcrux_size, MAX_RW_BYTES);
 
 		std::ifstream horcrux_file{horcrux_path, std::ios::binary};
+
 		if (horcrux_file.fail())
 		{
 			throw HorcruxLoadException(std::string{"error opening " + horcrux_path});
 		}
 
-		joined_file << horcrux_file.rdbuf();
+		for (unsigned int j = 0; j < horcrux_size / rw_size; ++j)
+		{
+			horcrux_file.read(buffer.data(), rw_size);
+			joined_file.write(buffer.data(), horcrux_file.gcount());
+		}
+
+		if (horcrux_size % rw_size != 0)
+		{
+			horcrux_file.read(buffer.data(), horcrux_size % rw_size);
+			joined_file.write(buffer.data(), horcrux_file.gcount());
+		}
 
 		horcrux_file.close();
 	}
