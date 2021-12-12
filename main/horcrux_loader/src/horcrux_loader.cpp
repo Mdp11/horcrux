@@ -122,15 +122,15 @@ void horcrux::HorcruxLoader::decrypt()
 	std::ofstream output(output_file_, std::ios::binary);
 	if (output.fail())
 	{
-		throw HorcruxLoadException("error creating output file");
+		throw HorcruxLoadException("error creating output file " + output_file_);
 	}
 
-	std::array<unsigned char, AES_BLOCK_SIZE> input_bytes;
-	std::array<unsigned char, AES_BLOCK_SIZE> output_bytes;
+	std::array<unsigned char, AES_BLOCK_SIZE * MAX_RW_BYTES> input_bytes;
+	std::array<unsigned char, AES_BLOCK_SIZE * MAX_RW_BYTES> output_bytes;
 
 	while (input.peek() != EOF)
 	{
-		input.read(reinterpret_cast<char *>(input_bytes.data()), AES_BLOCK_SIZE);
+		input.read(reinterpret_cast<char *>(input_bytes.data()), AES_BLOCK_SIZE * MAX_RW_BYTES);
 
 		AES_decrypt(input_bytes.data(), output_bytes.data(), (const AES_KEY *)aes_key.get());
 
