@@ -94,14 +94,14 @@ void horcrux::HorcruxGenerator::encrypt()
 
 	while (input.peek() != EOF)
 	{
-		std::array<unsigned char, AES_BLOCK_SIZE> input_bytes{0};
-		std::array<unsigned char, AES_BLOCK_SIZE> output_bytes{0};
+		std::array<unsigned char, AES_BLOCK_SIZE * MAX_RW_BYTES> input_bytes{0};
+		std::array<unsigned char, AES_BLOCK_SIZE * MAX_RW_BYTES> output_bytes{0};
 
-		input.read(reinterpret_cast<char *>(input_bytes.data()), AES_BLOCK_SIZE);
+		input.read(reinterpret_cast<char *>(input_bytes.data()), AES_BLOCK_SIZE * MAX_RW_BYTES);
 
-		if (input.gcount() < AES_BLOCK_SIZE)
+		if (input.gcount() < static_cast<long int>(AES_BLOCK_SIZE * MAX_RW_BYTES))
 		{
-			auto required_padding = AES_BLOCK_SIZE - input.gcount();
+			auto required_padding = AES_BLOCK_SIZE * MAX_RW_BYTES - input.gcount();
 
 			for (std::size_t i = input_bytes.size() - required_padding; i < input_bytes.size(); ++i)
 			{
@@ -111,7 +111,7 @@ void horcrux::HorcruxGenerator::encrypt()
 
 		AES_encrypt(input_bytes.data(), output_bytes.data(), (const AES_KEY *)aes_key.get());
 
-		output.write(reinterpret_cast<char *>(output_bytes.data()), AES_BLOCK_SIZE);
+		output.write(reinterpret_cast<char *>(output_bytes.data()), AES_BLOCK_SIZE * MAX_RW_BYTES);
 	}
 
 	input.close();
@@ -137,6 +137,9 @@ void horcrux::HorcruxGenerator::split()
 	std::array<char, MAX_RW_BYTES> buffer{};
 	std::uintmax_t rw_size = std::min(horcrux_size, MAX_RW_BYTES);
 
+	std::uintmax_t total_chunks = file_size / rw_size;
+	std::uintmax_t current_chunk{1};
+
 	int i{0};
 
 	for (; i < n_horcruxes_; ++i)
@@ -152,6 +155,8 @@ void horcrux::HorcruxGenerator::split()
 		{
 			encrypted_file.read(buffer.data(), rw_size);
 			horcrux_output.write(buffer.data(), encrypted_file.gcount());
+			std::cout << "Horcrux generation " << (current_chunk * 100) / total_chunks << "% ..." << std::endl;
+			current_chunk++;
 		}
 
 		if (horcrux_size % rw_size != 0)
@@ -175,6 +180,9 @@ void horcrux::HorcruxGenerator::split()
 				horcrux_output.write(buffer.data(), encrypted_file.gcount());
 			}
 		}
+
+		std::cout << "Horcrux generation completed!" << std::endl;
+		current_chunk++;
 
 		horcrux_output.close();
 	}
