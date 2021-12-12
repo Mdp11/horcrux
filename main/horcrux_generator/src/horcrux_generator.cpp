@@ -92,6 +92,11 @@ void horcrux::HorcruxGenerator::encrypt()
 		throw HorcruxGenerateException("error creating temporary encrypted file");
 	}
 
+	std::uintmax_t file_size = std::filesystem::file_size(input_file_);
+	std::uintmax_t total_chunks = file_size / (AES_BLOCK_SIZE * MAX_RW_BYTES);
+	std::uintmax_t current_chunk{1};
+	std::uintmax_t current_percent{0};
+
 	while (input.peek() != EOF)
 	{
 		std::array<unsigned char, AES_BLOCK_SIZE * MAX_RW_BYTES> input_bytes{0};
@@ -112,7 +117,18 @@ void horcrux::HorcruxGenerator::encrypt()
 		AES_encrypt(input_bytes.data(), output_bytes.data(), (const AES_KEY *)aes_key.get());
 
 		output.write(reinterpret_cast<char *>(output_bytes.data()), AES_BLOCK_SIZE * MAX_RW_BYTES);
+
+
+		std::uintmax_t new_percent = (current_chunk * 100) / total_chunks;
+		if(current_percent != new_percent)
+		{
+			std::cout << "Encrypting... (" << (current_chunk * 100) / total_chunks << "%)" << std::endl;
+			current_percent = new_percent;
+		}
+		current_chunk++;
 	}
+
+	std::cout << "Encryption completed!" << std::endl;
 
 	input.close();
 	output.close();
@@ -139,6 +155,7 @@ void horcrux::HorcruxGenerator::split()
 
 	std::uintmax_t total_chunks = file_size / rw_size;
 	std::uintmax_t current_chunk{1};
+	std::uintmax_t current_percent{0};
 
 	int i{0};
 
@@ -155,7 +172,13 @@ void horcrux::HorcruxGenerator::split()
 		{
 			encrypted_file.read(buffer.data(), rw_size);
 			horcrux_output.write(buffer.data(), encrypted_file.gcount());
-			std::cout << "Horcrux generation " << (current_chunk * 100) / total_chunks << "% ..." << std::endl;
+
+			std::uintmax_t new_percent = (current_chunk * 100) / total_chunks;
+			if(current_percent != new_percent)
+			{
+				std::cout << "Generating horcrux... (" << (current_chunk * 100) / total_chunks << "%)" << std::endl;
+				current_percent = new_percent;
+			}
 			current_chunk++;
 		}
 
@@ -181,11 +204,12 @@ void horcrux::HorcruxGenerator::split()
 			}
 		}
 
-		std::cout << "Horcrux generation completed!" << std::endl;
 		current_chunk++;
 
 		horcrux_output.close();
 	}
+
+	std::cout << "Horcrux generation completed!" << std::endl;
 
 	encrypted_file.close();
 	std::filesystem::remove("tmp");
