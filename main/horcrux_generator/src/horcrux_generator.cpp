@@ -123,13 +123,13 @@ void horcrux::HorcruxGenerator::encrypt()
 		std::uintmax_t new_percent = (current_chunk * 100) / total_chunks;
 		if(current_percent != new_percent)
 		{
-			std::cout << "Encrypting... (" << (current_chunk * 100) / total_chunks << "%)" << std::endl;
+			std::cout << "\rEncrypting... (" << (current_chunk * 100) / total_chunks << "%)" << std::flush;
 			current_percent = new_percent;
 		}
 		current_chunk++;
 	}
 
-	std::cout << "Encryption completed!" << std::endl;
+	std::cout << std::endl << "Encryption completed!" << std::endl;
 
 	input.close();
 	output.close();
@@ -158,7 +158,7 @@ void horcrux::HorcruxGenerator::split()
 
 	for (; i < n_horcruxes_; ++i)
 	{
-		std::cout << "Generating horcrux " << i + 1 << "/" << n_horcruxes_ << "..." << std::endl;
+		std::cout << "\rGenerating horcrux " << i + 1 << "/" << n_horcruxes_ << "..." << std::flush;
 
 		std::ofstream horcrux_output{output_folder_ + "/horcrux_" + std::to_string(i), std::ios::binary};
 		if (horcrux_output.fail())
@@ -198,7 +198,7 @@ void horcrux::HorcruxGenerator::split()
 		horcrux_output.close();
 	}
 
-	std::cout << "Horcrux generation completed!" << std::endl;
+	std::cout << std::endl << "Horcrux generation completed!" << std::endl;
 
 	encrypted_file.close();
 	std::filesystem::remove(TMP_FILE);

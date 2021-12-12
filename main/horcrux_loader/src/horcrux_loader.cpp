@@ -79,7 +79,7 @@ void horcrux::HorcruxLoader::join()
 
 	for (std::size_t i = 0;  i < horcruxes_paths_.size(); ++i)
 	{
-		std::cout << "Joining horcrux " << i + 1 << "/" << horcruxes_paths_.size() << "..." << std::endl;
+		std::cout << "\rJoining horcrux " << i + 1 << "/" << horcruxes_paths_.size() << "..." << std::flush;
 
 		std::uintmax_t horcrux_size = std::filesystem::file_size(horcruxes_paths_.at(i));
 		std::uintmax_t rw_size = std::min(horcrux_size, MAX_RW_BYTES);
@@ -106,7 +106,7 @@ void horcrux::HorcruxLoader::join()
 		horcrux_file.close();
 	}
 
-	std::cout << "Joined all horcruxes!" << std::endl;
+	std::cout << std::endl << "Joined all horcruxes!" << std::endl;
 
 	joined_file.close();
 }
@@ -149,13 +149,13 @@ void horcrux::HorcruxLoader::decrypt()
 		std::uintmax_t new_percent = (current_chunk * 100) / total_chunks;
 		if(current_percent != new_percent)
 		{
-			std::cout << "Decrypting... (" << (current_chunk * 100) / total_chunks << "%)" << std::endl;
+			std::cout << "\rDecrypting... (" << (current_chunk * 100) / total_chunks << "%)" << std::flush;
 			current_percent = new_percent;
 		}
 		current_chunk++;
 	}
 
-	std::cout << "Decryption completed!" << std::endl;
+	std::cout << std::endl << "Decryption completed!" << std::endl;
 
 	input.close();
 	output.close();
