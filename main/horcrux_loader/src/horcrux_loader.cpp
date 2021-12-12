@@ -127,9 +127,15 @@ void horcrux::HorcruxLoader::decrypt()
 		throw HorcruxLoadException("error opening joined file");
 	}
 
-	//TODO: create directories up to output_file if they do not exist
+	std::filesystem::path output_path{output_file_};
+	std::filesystem::path parent_path = output_path.parent_path();
 
-	std::ofstream output(output_file_, std::ios::binary);
+	if(!parent_path.empty())
+	{
+		std::filesystem::create_directories(parent_path);
+	}
+
+	std::ofstream output(output_file_, std::ios::binary | std::ios::trunc);
 	if (output.fail())
 	{
 		throw HorcruxLoadException("error creating output file " + output_file_);

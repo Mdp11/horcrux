@@ -87,7 +87,7 @@ void horcrux::HorcruxGenerator::encrypt()
 		throw HorcruxGenerateException("error opening " + input_file_);
 	}
 
-	std::ofstream output(TMP_FILE, std::ios::binary);
+	std::ofstream output(TMP_FILE, std::ios::binary | std::ios::trunc);
 	if (output.fail())
 	{
 		throw HorcruxGenerateException("error creating temporary encrypted file");
@@ -160,7 +160,7 @@ void horcrux::HorcruxGenerator::split()
 	{
 		std::cout << "\rGenerating horcrux " << i + 1 << "/" << n_horcruxes_ << "..." << std::flush;
 
-		std::ofstream horcrux_output{output_folder_ + "/horcrux_" + std::to_string(i), std::ios::binary};
+		std::ofstream horcrux_output{output_folder_ + "/horcrux_" + std::to_string(i), std::ios::binary | std::ios::trunc};
 		if (horcrux_output.fail())
 		{
 			std::filesystem::remove(TMP_FILE);
