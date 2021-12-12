@@ -70,6 +70,7 @@ void horcrux::HorcruxGenerator::printKey()
 		throw HorcruxGenerateException("error encoding the key in base64");
 	}
 
+	std::cout << "Store the following key with caution, you will need it to join your horcruxes back together:" << std::endl;
 	std::cout << output_buffer.get() << std::endl;
 }
 
@@ -86,7 +87,7 @@ void horcrux::HorcruxGenerator::encrypt()
 		throw HorcruxGenerateException("error opening " + input_file_);
 	}
 
-	std::ofstream output("tmp", std::ios::binary);
+	std::ofstream output(TMP_FILE, std::ios::binary);
 	if (output.fail())
 	{
 		throw HorcruxGenerateException("error creating temporary encrypted file");
@@ -137,14 +138,14 @@ void horcrux::HorcruxGenerator::encrypt()
 
 void horcrux::HorcruxGenerator::split()
 {
-	std::uintmax_t file_size = std::filesystem::file_size("tmp");
+	std::uintmax_t file_size = std::filesystem::file_size(TMP_FILE);
 	std::uintmax_t horcrux_size = file_size / n_horcruxes_;
 	std::uintmax_t horcrux_remainder_size = file_size % n_horcruxes_;
 
-	std::ifstream encrypted_file{"tmp", std::ios::binary};
+	std::ifstream encrypted_file{TMP_FILE, std::ios::binary};
 	if (encrypted_file.fail())
 	{
-		std::filesystem::remove("tmp");
+		std::filesystem::remove(TMP_FILE);
 		throw HorcruxGenerateException("error opening generated encrypted file");
 	}
 
@@ -164,7 +165,7 @@ void horcrux::HorcruxGenerator::split()
 		std::ofstream horcrux_output{output_folder_ + "/horcrux_" + std::to_string(i), std::ios::binary};
 		if (horcrux_output.fail())
 		{
-			std::filesystem::remove("tmp");
+			std::filesystem::remove(TMP_FILE);
 			throw HorcruxGenerateException("error creating horcrux file");
 		}
 
@@ -212,5 +213,5 @@ void horcrux::HorcruxGenerator::split()
 	std::cout << "Horcrux generation completed!" << std::endl;
 
 	encrypted_file.close();
-	std::filesystem::remove("tmp");
+	std::filesystem::remove(TMP_FILE);
 }

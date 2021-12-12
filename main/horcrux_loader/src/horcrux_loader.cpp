@@ -1,5 +1,6 @@
 #include "horcrux_loader.hpp"
 
+#include <iostream>
 #include <memory>
 #include <filesystem>
 #include <fstream>
@@ -68,7 +69,7 @@ void horcrux::HorcruxLoader::decodeKey()
 void horcrux::HorcruxLoader::join()
 {
 
-	std::ofstream joined_file{"tmp", std::ios::binary};
+	std::ofstream joined_file{TMP_FILE, std::ios::binary};
 	if (joined_file.fail())
 	{
 		throw HorcruxLoadException("error creating joined file");
@@ -76,16 +77,17 @@ void horcrux::HorcruxLoader::join()
 
 	std::array<char, MAX_RW_BYTES> buffer{};
 
-	for (const auto &horcrux_path: horcruxes_paths_)
+	for (std::size_t i = 0;  i < horcruxes_paths_.size(); ++i)
 	{
-		std::uintmax_t horcrux_size = std::filesystem::file_size(horcrux_path);
+		std::cout << "Joining horcrux " << i + 1 << "/" << horcruxes_paths_.size() << "..." << std::endl;
+		std::uintmax_t horcrux_size = std::filesystem::file_size(horcruxes_paths_.at(i));
 		std::uintmax_t rw_size = std::min(horcrux_size, MAX_RW_BYTES);
 
-		std::ifstream horcrux_file{horcrux_path, std::ios::binary};
+		std::ifstream horcrux_file{horcruxes_paths_.at(i), std::ios::binary};
 
 		if (horcrux_file.fail())
 		{
-			throw HorcruxLoadException(std::string{"error opening " + horcrux_path});
+			throw HorcruxLoadException(std::string{"error opening " + horcruxes_paths_.at(i)});
 		}
 
 		for (unsigned int j = 0; j < horcrux_size / rw_size; ++j)
@@ -103,6 +105,8 @@ void horcrux::HorcruxLoader::join()
 		horcrux_file.close();
 	}
 
+	std::cout << "Joined all horcruxes!" << std::endl;
+
 	joined_file.close();
 }
 
@@ -111,7 +115,12 @@ void horcrux::HorcruxLoader::decrypt()
 	std::unique_ptr<AES_KEY> aes_key = std::make_unique<AES_KEY>();
 	AES_set_decrypt_key(decoded_key_.data(), 256, aes_key.get());
 
-	std::ifstream input("tmp", std::ios::binary);
+	std::uintmax_t file_size = std::filesystem::file_size(TMP_FILE);
+	std::uintmax_t total_chunks = file_size / (AES_BLOCK_SIZE * MAX_RW_BYTES);
+	std::uintmax_t current_chunk{1};
+	std::uintmax_t current_percent{0};
+
+	std::ifstream input(TMP_FILE, std::ios::binary);
 	if (input.fail())
 	{
 		throw HorcruxLoadException("error opening joined file");
@@ -135,10 +144,20 @@ void horcrux::HorcruxLoader::decrypt()
 		AES_decrypt(input_bytes.data(), output_bytes.data(), (const AES_KEY *)aes_key.get());
 
 		output.write(reinterpret_cast<char *>(output_bytes.data()), input.gcount());
+
+		std::uintmax_t new_percent = (current_chunk * 100) / total_chunks;
+		if(current_percent != new_percent)
+		{
+			std::cout << "Decrypting... (" << (current_chunk * 100) / total_chunks << "%)" << std::endl;
+			current_percent = new_percent;
+		}
+		current_chunk++;
 	}
+
+	std::cout << "Decryption completed!" << std::endl;
 
 	input.close();
 	output.close();
 
-	std::filesystem::remove("tmp");
+	std::filesystem::remove(TMP_FILE);
 }
